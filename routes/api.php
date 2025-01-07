@@ -9,4 +9,4 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::resource('cars',CarController::class);
+Route::apiResource('cars',CarController::class);

@@ -17,61 +17,78 @@ class CarController extends Controller
         // $car->price=50000.0;
         // $car->save();
     }
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
         $cars = Car::all();
-        return ($cars->toJson());
+        if ($cars->isEmpty()) {
+            return ($cars->toJson());
+        }
+        return response()->json(["message"=>"Cars not found"],404);
+
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(StoreCarRequest $request)
     {
-        $car = Car::create($request->all());
-        return $car;
+        // $car = Car::create($request->only(['model','type','year','price','color']));
+        $validated = $request->validated();
+        $car = Car::create($validated);
+        return response()->json($validated,201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Car $car)
+
+    public function show(string $id)
     {
-        //
+        // $car = Car::where('id',$id)->first();
+        $car = Car::findOrFail($id);
+        $car = Car::find($id);
+        if ($car) {
+            return response()->json($car);
+        }
+        return response()->json(["message"=>"Car not found"],404);
+        
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit(Car $car)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateCarRequest $request, Car $car)
+    public function update(UpdateCarRequest $request, string $id)
     {
-        //
+        $validated = $request->validated();
+        $car = Car::find($id);
+        if ($car) {
+            $car->update($validated);
+            return response()->json($car,200);
+        }
+        return response()->json(["message"=>"Car not found"],404);
+
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Car $car)
+
+    public function destroy(string $id)
     {
-        //
+        // $destroyed = Car::destroy($id);
+        // if ($destroyed>=1) {
+        //     return response()->json(["message"=>"Car deleted successfully"],200);
+        // }
+        // return response()->json(["message"=>"Car not found"],404);
+
+
+        $car = Car::find($id);
+        if ($car) {
+            $car->delete();
+            return response()->json(["message"=>"Car deleted successfully"],204);
+        }
+        return response()->json(["message"=>"Car not found"],404);
+
     }
 }
